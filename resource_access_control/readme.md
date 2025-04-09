@@ -90,3 +90,45 @@ hasAccess("alice", "san_francisco") → True
 hasAccess("alice", "california") → False
 ```
 
+### 🚫 Naive Approach (What Not To Do)
+A naive solution might:
+
+- Store a set of all nodes a user currently has access to.
+- On grantAccess, traverse the entire subtree of the target node and add all nodes to the user's access set.
+- On revokeAccess, do the same to remove access from all descendants.
+
+This leads to:
+
+❌ O(n) time per grant or revoke operation (where n is the size of the subtree).
+❌ High memory usage per user.
+
+
+### ⚙️ Optimal solution 
+
+By using a timestamped log of grant/revoke actions per user and node:
+
+- We don’t need to store the full access set.
+- Each node for a user only stores the latest operation.
+
+During hasAccess, we walk up the tree, comparing timestamps to find the most recent grant/revoke affecting access.
+
+This enables:
+
+- grantAccess and revokeAccess in O(1) (simple dictionary insert).
+- hasAccess in O(depth) with efficient timestamp comparison.
+- No redundant storage — each user-node pair only keeps the latest operation.
+
+Timestamps are the key to enabling efficient, conflict-free resolution of overlapping grant/revoke operations across the tree hierarchy.
+
+Timestamps are monotonically increasing — every grantAccess or revokeAccess is called with a strictly increasing timestamp for a given user.
+
+### Space / Time complexity 
+
+- grantAccess in O(1) time
+- revokeAccess in O(1) time
+- hasAccess in O(depth) time — where depth is the number of ancestors from the node to the root.
+
+Minimal memory usage: store only the most recent operation (timestamp + action) per user-node.
+
+Assume the tree is static (i.e., the structure doesn't change after initialization).
+
